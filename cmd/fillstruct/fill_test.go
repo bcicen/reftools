@@ -51,7 +51,7 @@ type myStruct struct {
 }`,
 		},
 		{
-			name: "all nil",
+			name: "basic composite types",
 			src: `package p
 
 import "io"
@@ -71,7 +71,7 @@ type myStruct struct {
 	b: nil,
 	c: nil,
 	d: nil,
-	f: nil,
+	f: func(int) bool { panic("not implemented") },
 	g: nil,
 }`,
 		},
@@ -142,20 +142,23 @@ import "io"
 var s = myStruct{}
 
 type (
-	integer int64
-	reader io.Reader
-	slice []int
+	integer  int64
+	reader   io.Reader
+	slice    []integer
+	functype func(reader) func(int) bool
 )
 
 type myStruct struct {
 	a integer
 	b reader
 	c slice
+	f functype
 }`,
 			want: `myStruct{
 	a: 0,
 	b: nil,
 	c: nil,
+	f: func(reader) func(int) bool { panic("not implemented") },
 }`,
 		},
 		{
@@ -237,9 +240,9 @@ type myStruct struct {
 		nil,
 	},
 	d: [3]func(struct{}, interface{}) bool{
-		nil,
-		nil,
-		nil,
+		func(struct{}, interface{}) bool { panic("not implemented") },
+		func(struct{}, interface{}) bool { panic("not implemented") },
+		func(struct{}, interface{}) bool { panic("not implemented") },
 	},
 	e: [2][2][]unsafe.Pointer{
 		{
